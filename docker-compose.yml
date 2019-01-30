@@ -1,0 +1,41 @@
+version: '3'
+services:
+  jupyter:
+    container_name: "jupyter"
+    restart: "always"
+    build: './jupyter'
+    env_file:
+      - ./config/jupyter.env
+    ports: 
+      - 8888:8888
+    volumes: 
+      - ./work:/home/jovyan/work
+    depends_on:
+      - "postgres"
+    entrypoint: sh -c 'start-notebook.sh --NotebookApp.token=$$JUPYTER_PASSWORD'
+  postgres:
+    container_name: "postgres"
+    restart: "always"
+    image: postgres:11-alpine
+    env_file:
+      - ./config/postgres.env
+    volumes:
+      - ./db/postgres:/var/lib/postgresql/data
+  pgadmin4:
+    container_name: "pgadmin4"
+    restart: always
+    image: dpage/pgadmin4
+    env_file:
+      - ./config/pgadmin4.env
+    ports:
+      - 8889:80
+    depends_on:
+      - "postgres"
+  # superset:
+  #   container_name: "superset"
+  #   restart: "always"
+  #   image: amancevice/superset
+  #   env_file:
+  #       - ./config/superset.env
+  #   ports:
+  #     - 8088:8088
